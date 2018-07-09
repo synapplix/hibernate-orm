@@ -121,7 +121,7 @@ public interface Interceptor {
 	 *
 	 * @throws CallbackException Thrown if the interceptor encounters any problems handling the callback.
 	 */
-	void onCollectionRecreate(Object collection, Serializable key) throws CallbackException;
+	boolean onCollectionRecreate(Object collection, Serializable key) throws CallbackException;
 
 	/**
 	 * Called before a collection is deleted.
@@ -131,7 +131,7 @@ public interface Interceptor {
 	 *
 	 * @throws CallbackException Thrown if the interceptor encounters any problems handling the callback.
 	 */
-	void onCollectionRemove(Object collection, Serializable key) throws CallbackException;
+	boolean onCollectionRemove(Object collection, Serializable key) throws CallbackException;
 
 	/**
 	 * Called before a collection is updated.
@@ -141,7 +141,7 @@ public interface Interceptor {
 	 *
 	 * @throws CallbackException Thrown if the interceptor encounters any problems handling the callback.
 	 */
-	void onCollectionUpdate(Object collection, Serializable key) throws CallbackException;
+	boolean onCollectionUpdate(Object collection, Serializable key) throws CallbackException;
 
 	/**
 	 * Called before a flush.

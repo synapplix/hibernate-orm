@@ -137,6 +137,28 @@ public abstract class AbstractFlushingEventListener implements Serializable {
 //		for ( Map.Entry me : IdentityMap.concurrentEntries( persistenceContext.getEntityEntries() ) ) {
 			EntityEntry entry = (EntityEntry) me.getValue();
 			Status status = entry.getStatus();
+
+			// This entity will be saved?
+			boolean willBeSaved = true;
+			try {
+				Object o = me.getKey();
+				Class c = o.getClass();
+				Class jpaBase = Class.forName("play.db.jpa.JPABase");
+				while(!c.equals(Object.class)) {
+					if(c.equals(jpaBase)) {
+						willBeSaved = (Boolean)(jpaBase.getDeclaredField("willBeSaved").get(o));
+						break;
+					}
+					c = c.getSuperclass();
+				}
+				if(!willBeSaved) {
+					continue;
+				}
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+
 			if ( status == Status.MANAGED || status == Status.SAVING || status == Status.READ_ONLY ) {
 				cascadeOnFlush( session, entry.getPersister(), me.getKey(), anything );
 			}
@@ -255,8 +277,8 @@ public abstract class AbstractFlushingEventListener implements Serializable {
 			CollectionEntry ce = me.getValue();
 
 			if ( ce.isDorecreate() ) {
-				session.getInterceptor().onCollectionRecreate( coll, ce.getCurrentKey() );
-				actionQueue.addAction(
+				if(session.getInterceptor().onCollectionRecreate( coll, ce.getCurrentKey() )){
+					actionQueue.addAction(
 						new CollectionRecreateAction(
 								coll,
 								ce.getCurrentPersister(),
@@ -264,10 +286,11 @@ public abstract class AbstractFlushingEventListener implements Serializable {
 								session
 							)
 					);
+				}
 			}
 			if ( ce.isDoremove() ) {
-				session.getInterceptor().onCollectionRemove( coll, ce.getLoadedKey() );
-				actionQueue.addAction(
+				if(session.getInterceptor().onCollectionRemove( coll, ce.getLoadedKey() )){
+					actionQueue.addAction(
 						new CollectionRemoveAction(
 								coll,
 								ce.getLoadedPersister(),
@@ -276,10 +299,11 @@ public abstract class AbstractFlushingEventListener implements Serializable {
 								session
 							)
 					);
+				}
 			}
 			if ( ce.isDoupdate() ) {
-				session.getInterceptor().onCollectionUpdate( coll, ce.getLoadedKey() );
-				actionQueue.addAction(
+				if(session.getInterceptor().onCollectionUpdate( coll, ce.getLoadedKey() )){
+					actionQueue.addAction(
 						new CollectionUpdateAction(
 								coll,
 								ce.getLoadedPersister(),
@@ -288,6 +312,7 @@ public abstract class AbstractFlushingEventListener implements Serializable {
 								session
 							)
 					);
+				}
 			}
 
 			// todo : I'm not sure the !wasInitialized part should really be part of this check

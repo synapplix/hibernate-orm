@@ -121,14 +121,17 @@ public class EmptyInterceptor implements Interceptor, Serializable {
 	}
 
 	@Override
-	public void onCollectionRemove(Object collection, Serializable key) throws CallbackException {
+	public boolean onCollectionRemove(Object collection, Serializable key) throws CallbackException {
+		return true;
 	}
 
 	@Override
-	public void onCollectionRecreate(Object collection, Serializable key) throws CallbackException {
+	public boolean onCollectionRecreate(Object collection, Serializable key) throws CallbackException {
+		return true;
 	}
 
 	@Override
-	public void onCollectionUpdate(Object collection, Serializable key) throws CallbackException {
+	public boolean onCollectionUpdate(Object collection, Serializable key) throws CallbackException {
+		return true;
 	}
 }
